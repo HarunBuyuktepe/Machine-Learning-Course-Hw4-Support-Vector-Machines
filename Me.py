@@ -1,18 +1,14 @@
-#Bismillah
-
 import numpy as np
 from data import data
 from sklearn import svm
 
-hw8_train = "features.train.txt"
-hw8_test = "features.test.txt"
+trainSet = "features.train.txt"
+testSet  = "features.test.txt"
 
-trainX, trainY = data.load_file(hw8_train)
-testX, testY = data.load_file(hw8_test)
+trainX, trainY = data.load_file(trainSet)
+testX, testY = data.load_file(testSet)
 
 data =data(trainX, trainY,testX, testY)
-
-
 
 #defining learning model
 SVM_MODEL = svm.SVC(C = 0.01, kernel = 'poly',degree = 2, coef0 = 1.0, gamma = 1.0)
@@ -23,7 +19,6 @@ EvenSVM_num = np.array([])
 eIns = []
 
 for cur_num in range(10):
-    # cur_num-vs-all
     data.set_filter([cur_num])
     cur_X = data.get_X("train")
     cur_Y = data.get_Y("train")
@@ -31,16 +26,14 @@ for cur_num in range(10):
     #feed model with train data
     SVM_MODEL.fit(cur_X, cur_Y)
     cur_score = SVM_MODEL.score(cur_X, cur_Y)
-    cur_numalphas = SVM_MODEL.n_support_
-    cur_asum = np.array(cur_numalphas).sum()
+    cur_numSvm = SVM_MODEL.n_support_
+    cur_svmsum = np.array(cur_numSvm).sum()
 
     eIns.append([cur_num,(1-cur_score)])
-    #print(cur_num,"-vs-all binary classifier in-sample error:",(1.0 - cur_score))
     if cur_num % 2 == 0:
-        EvenSVM_num = np.concatenate((EvenSVM_num, [cur_asum]))
+        EvenSVM_num = np.concatenate((EvenSVM_num, [cur_svmsum]))
     else:
-        OddSVM_num = np.concatenate((OddSVM_num, [cur_asum]))
-
+        OddSVM_num = np.concatenate((OddSVM_num, [cur_svmsum]))
 
 aodd_sum = np.sum(OddSVM_num)
 aeven_sum = np.sum(EvenSVM_num)
@@ -56,15 +49,11 @@ a_diff = abs(aodd_sum - aeven_sum)
 print("The difference between the number of supportvectors is" , a_diff)
 
 
-
-
 data.set_filter([1,5])
-x_1v5_train = data.get_X("train")
-y_1v5_train= data.get_Y("train")
-x_1v5_test = data.get_X("test")
-y_1v5_test= data.get_Y( "test")
-
-
+TrainXlv5 = data.get_X("train")
+TrainYlv5 = data.get_Y("train")
+TestXlv5  = data.get_X("test")
+TestYlv5  = data.get_Y( "test")
 
 pk_Q = [2,5]
 pk_C = [pow(10, -x) for x in reversed(range(5))]
@@ -74,10 +63,9 @@ for Q in pk_Q:
     print("For Q is ",Q)
     for C in pk_C:
         SVM_MODEL.C = C
-        SVM_MODEL.fit(x_1v5_train, y_1v5_train)
-        cur_ein = 1.0 - SVM_MODEL.score(x_1v5_train, y_1v5_train)
-        cur_eout = 1.0 - SVM_MODEL.score(x_1v5_test, y_1v5_test) ;
-        cur_numalphas = SVM_MODEL.n_support_
-        cur_asum = np.array(cur_numalphas).sum()
-        print("For C is ",C ,"\nE_in = ",cur_ein, " E_out = ",cur_eout,"\nNumber of support vector = " ,cur_asum)
-    print("")
+        SVM_MODEL.fit(TrainXlv5, TrainYlv5)
+        cur_ein = 1.0 - SVM_MODEL.score(TrainXlv5, TrainYlv5)
+        cur_eout = 1.0 - SVM_MODEL.score(TestXlv5, TestYlv5)
+        cur_numSvm = SVM_MODEL.n_support_
+        cur_svmsum = np.array(cur_numSvm).sum()
+        print("For C is ",C ,"\nE_in = ",cur_ein, " E_out = ",cur_eout,"\nNumber of support vector = " ,cur_svmsum)
